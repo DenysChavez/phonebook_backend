@@ -1,6 +1,18 @@
 const express = require("express");
+const cors = require("cors");
 const morgan = require("morgan");
+
+const requestLogger = (request, response, next) => {
+  console.log("Method:", request.method);
+  console.log("Path:  ", request.path);
+  console.log("Body:  ", request.body);
+  console.log("---");
+  next();
+};
+
 const app = express();
+app.use(requestLogger);
+app.use(cors());
 
 morgan.token("body", (req) => JSON.stringify(req.body));
 
