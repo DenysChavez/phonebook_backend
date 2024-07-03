@@ -11,6 +11,7 @@ const requestLogger = (request, response, next) => {
 };
 
 const app = express();
+app.use(express.static("dist"));
 app.use(requestLogger);
 app.use(cors());
 
