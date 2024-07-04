@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
+const Person = require("./models/person");
 
 const requestLogger = (request, response, next) => {
   console.log("Method:", request.method);
@@ -47,7 +48,9 @@ app.use(
 app.use(express.json());
 
 app.get("/api/persons", (request, response) => {
-    response.json(persons)
+    Person.find({}).then((p) => {
+        response.json(p)
+    })
 })
 
 app.get("/info", (request, response) => {
