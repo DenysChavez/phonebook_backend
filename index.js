@@ -47,15 +47,21 @@ app.get("/api/persons", (request, response) => {
     })
 })
 
-app.get("/info", (request, response) => {
-    const date = new Date()
-    response.send(`<p>Phonebook has info for ${Person.length} people</p> <br/> <p>${date}</p>`)
-})
+app.get("/info", (req, res) => {
+  const date = new Date();
+  Person.countDocuments().then((count) => {
+    res.send(`<p>Phonebook has info for ${count} people</p><p>${date}</p>`);
+  });
+});
 
-app.get("/api/persons/:id", (request, response) => {
+app.get("/api/persons/:id", (request, response, next) => {
     Person.findById(request.params.id).then((p) => {
-        response.json(p)
-    })
+        if (p) {
+            response.json(p);
+        } else {
+            response.status(404).end()
+        }
+    }).catch((error) => next(error))
 })
 
 app.delete("/api/persons/:id", (req, res, next) => {
@@ -86,20 +92,20 @@ app.post("/api/persons", (req, res, next) => {
     .catch((error) => next(error));
 });
 
-app.put("/api/persons/:id", (req, res, next) => {
-  const body = req.body;
+app.put('/api/persons/:id', (req, res, next) => {
+  const body = req.body
 
   const person = {
     name: body.name,
-    number: body.number,
-  };
+    number: body.number
+  }
 
   Person.findByIdAndUpdate(req.params.id, person, { new: true })
-    .then((updatedPerson) => {
-      res.json(updatedPerson);
+    .then(updatedPerson => {
+      res.json(updatedPerson)
     })
-    .catch((error) => next(error));
-});
+    .catch(error => next(error))
+})
 
 app.use(unknownEndpoint);
 app.use(errorHandler);
