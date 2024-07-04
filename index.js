@@ -55,18 +55,13 @@ app.get("/api/persons", (request, response) => {
 
 app.get("/info", (request, response) => {
     const date = new Date()
-    response.send(`<p>Phonebook has info for ${persons.length} people</p> <br/> <p>${date}</p>`)
+    response.send(`<p>Phonebook has info for ${Person.length} people</p> <br/> <p>${date}</p>`)
 })
 
 app.get("/api/persons/:id", (request, response) => {
-    const id = request.params.id;
-    const person = persons.find(p => p.id == id)
-
-    if (person) {
-        response.json(person)
-    } else {
-        response.status(404).end()
-    }
+    Person.findById(request.params.id).then((p) => {
+        response.json(p)
+    })
 })
 
 app.delete("/api/persons/:id", (request, response) => {
@@ -76,30 +71,25 @@ app.delete("/api/persons/:id", (request, response) => {
     response.status(204).end
 })
 
-app.post("/api/persons", (request, response) => {
-    const body = request.body;
-    const personToFind = persons.filter((p) => p.name == body.name)
-    
-    if (!body.name || !body.number) {
-        return response.status(404).json({
-            error: "name or number missing"
-        })
-    } else if (personToFind) {
-        return response.status(404).json({
-            error: "name must be unique"
-        })
-    }
+app.post("/api/persons", (req, res, next) => {
+  const body = req.body;
 
-    const person = {
-        id: Math.floor(Math.random() * 99),
-        name: body.name,
-        number: body.number
-    }
+  if (body.name === undefined || body.number === undefined) {
+    return res.status(400).json({ error: "name or number missing" });
+  }
 
-    persons = persons.concat(person)
-    response.json(person)
-})
+  const person = new Person({
+    name: body.name,
+    number: body.number,
+  });
 
+  person
+    .save()
+    .then((savedPerson) => {
+      res.json(savedPerson);
+    })
+    .catch((error) => next(error));
+});
 
 const PORT = 3001;
 app.listen(PORT, () => {
