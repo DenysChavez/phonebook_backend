@@ -65,11 +65,11 @@ app.get("/api/persons/:id", (request, response) => {
 })
 
 app.delete("/api/persons/:id", (request, response) => {
-    const id = request.params.id;
-    persons = persons.filter((p) => p.id != id)
-    console.log(persons);
-    response.status(204).end
-})
+    Person.findByIdAndDelete(request.params.id)
+        .then(result => {
+            response.status(204).end()
+        }).catch(error => next(error))
+});
 
 app.post("/api/persons", (req, res, next) => {
   const body = req.body;
